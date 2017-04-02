@@ -3,7 +3,7 @@
 -- Website: github.com/paragasu/lua-resty-aws-email
 -- Licence: MIT
 
-local i = require 'inspect'
+local i = require('util').inspect
 local aws_auth = require 'resty.aws_auth'
 local request  = require 'requests'
 local email_from = ''
@@ -33,10 +33,10 @@ function _M:new(c)
   config.aws_region  = c.aws_region
   config.aws_key     = c.aws_key
   config.aws_host    = 'email.' .. c.aws_region .. '.amazonaws.com'
+--  config.aws_host    = c.aws_region .. '.amazonses.com'
+--  config.aws_host    = 'aws.amazon.com/ses'
   return setmetatable(_M, mt)
 end
-
-local inspect = require 'inspect'
 
 -- send email
 -- @param email_to string or array recipient email eg hello<hello@world.com> 
@@ -73,14 +73,14 @@ function _M:send(email_to, subject, message)
   local body, err = res.xml() 
   local result = body.xml
 
+  ngx.log(ngx.ERR, 'body: ' .. i(body));
   if body.xml == 'SendEmailResponse' then
     return true, body[1][1][1]  -- send
   else
     local info  = body[1][3][1]
-    ngx.log(ngx.ERR, 'Email sending failed: ' .. info,  i(config.request_body))
+    ngx.log( ngx.ERR, 'Email sending failed: ' .. info,  i( config.request_body ) );
     return false, info  -- failed
   end
-
 end
 
 -- set correct parameter for one or more email
